@@ -1,0 +1,5 @@
+phase,scope,wall_seconds,measured_on,environment,notes
+prepare_corpus,"55-page PDF; 38 included pages; A/B/C",2.47,2026-11-14,"Python 3.13.17; sentence-transformers 5.7.0","Includes PDF extraction, normalization, and chunking; excludes embedding, database ingestion, and benchmark retrieval."
+embedding_ingestion,"A/B/C; 354 chunks total",54.66,2026-11-14,"Python 3.13.17; sentence-transformers 5.7.0; PostgreSQL 16.16 + pgvector 0.8.7","Includes model initialization, embedding, and PostgreSQL upserts."
+dev_evaluation,"15 dev questions x 3 strategies",249.61,2026-11-14,"Python 3.13.17; sentence-transformers 5.7.0; PostgreSQL 16.16 + pgvector 0.8.7","Includes model initialization, query embeddings, retrieval, metric calculation, and trace/summary writes; shared total, not per-strategy."
+test_evaluation,"Not rerun",,2026-11-14,"Existing test traces retained","No new test timing; the test set had already been inspected and was not rerun."

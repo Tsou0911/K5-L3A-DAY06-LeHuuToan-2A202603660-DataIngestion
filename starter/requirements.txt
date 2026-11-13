@@ -1,4 +1,5 @@
-# Core setup and PDF parsing. Choose and install an embedding SDK separately.
-psycopg[binary]==3.3.8
+# PostgreSQL/pgvector runs in Docker; Python connects to the local port.
+psycopg[binary]>=3.2,<4
+sentence-transformers>=5.0,<6
 pypdf>=5,<7
 python-dotenv>=1,<2

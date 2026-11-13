@@ -1,4 +1,4 @@
 strategy,chunking,chunk_size,overlap,metadata,filter,vectorizer,hypothesis,dev_hit1,dev_hit3,test_hit1,test_hit3,notes
-A,,,,,,,,,,,,
-B,,,,,,,,,,,,
-C,,,,,,,,,,,,
+A,fixed-size near word boundaries,1200 characters,150 characters,"document_id; source; page; section where mapped",none,sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2,"Fixed windows provide a consistent baseline.",5/15,9/15,2/5,2/5,"384 dimensions; PostgreSQL 16.16 + pgvector 0.8.7; cosine/HNSW. 600-character dev trial: 6/15 Hit@1, 7/15 Evidence Hit@3. Test was inspected across all strategies; treat as exploratory, not a fresh holdout."
+B,paragraph-aware packing with max size,1200 characters,0,"document_id; source; page; section where mapped",none,sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2,"Paragraph-aware chunks may preserve context better than fixed windows.",7/15,8/15,1/5,1/5,"114 chunks. 600-character dev trial: 5/15 Hit@1, 9/15 Evidence Hit@3. Test was inspected across all strategies; treat as exploratory, not a fresh holdout."
+C,paragraph-aware packing with max size,1200 characters,0,"document_id; source; page; section where mapped",section filter when supplied by question,sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2,"Isolating section filtering from B tests metadata filtering.",8/15,9/15,1/5,2/5,"114 chunks. 600-character dev trial: 5/15 Hit@1, 9/15 Evidence Hit@3. Test was inspected across all strategies; treat as exploratory, not a fresh holdout."

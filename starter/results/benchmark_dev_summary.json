@@ -1,0 +1,35 @@
+{
+  "A_fixed/dev": {
+    "n": 15,
+    "hit_at_1": {
+      "hits": 5,
+      "total": 15
+    },
+    "evidence_hit_at_3": {
+      "hits": 9,
+      "total": 15
+    }
+  },
+  "B_paragraph/dev": {
+    "n": 15,
+    "hit_at_1": {
+      "hits": 7,
+      "total": 15
+    },
+    "evidence_hit_at_3": {
+      "hits": 8,
+      "total": 15
+    }
+  },
+  "C_paragraph_metadata/dev": {
+    "n": 15,
+    "hit_at_1": {
+      "hits": 8,
+      "total": 15
+    },
+    "evidence_hit_at_3": {
+      "hits": 9,
+      "total": 15
+    }
+  }
+}

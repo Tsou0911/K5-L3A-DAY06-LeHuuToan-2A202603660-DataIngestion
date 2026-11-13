@@ -1,23 +1,31 @@
-"""Read-only setup check; this is a utility, not the student pipeline solution."""
+"""Check that the Docker PostgreSQL service has pgvector enabled."""
 import os
-import sys
 from pathlib import Path
 
-import psycopg
 from dotenv import load_dotenv
+import psycopg
 
-load_dotenv(Path(__file__).resolve().parents[1] / '.env')
-url = os.getenv('DATABASE_URL')
-if not url:
-    sys.exit('DATABASE_URL missing: copy starter/.env.example to starter/.env first.')
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / ".env")
+database_url = os.getenv(
+    "DATABASE_URL", "postgresql://day6:day6_local_only@localhost:55433/day6_lab"
+)
+
 try:
-    with psycopg.connect(url, connect_timeout=5) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT current_database(), current_setting('server_version'), extversion FROM pg_extension WHERE extname = 'vector'")
-            row = cursor.fetchone()
-            if not row:
-                sys.exit('Connected, but pgvector extension is missing. See starter/README.md.')
-            print(f'Database: {row[0]} | PostgreSQL: {row[1]} | pgvector: {row[2]}')
-except psycopg.Error:
-    sys.exit('Database connection failed. Check Docker, port and DATABASE_URL in starter/.env.')
-print('Setup OK. Pipeline functions still need to be implemented.')
+    with psycopg.connect(database_url, connect_timeout=5) as conn:
+        version = conn.execute("SELECT version()").fetchone()[0]
+        vector_version = conn.execute(
+            "SELECT extversion FROM pg_extension WHERE extname = 'vector'"
+        ).fetchone()
+        if vector_version is None:
+            raise RuntimeError("pgvector extension is missing; recreate the database or run CREATE EXTENSION vector")
+        print(f"PostgreSQL: {version.split(',')[0]}")
+        print(f"pgvector: {vector_version[0]}")
+        print(f"Database: {database_url.rsplit('/', 1)[-1]}")
+        print("Setup OK. Docker PostgreSQL is reachable and pgvector is enabled.")
+except psycopg.OperationalError as exc:
+    raise SystemExit(
+        "Cannot connect to PostgreSQL. Start Docker Desktop, then run "
+        "'docker compose up -d --wait' from the starter directory.\n"
+        f"Details: {exc}"
+    ) from exc

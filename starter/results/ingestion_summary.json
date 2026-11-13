@@ -1,0 +1,19 @@
+{
+  "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+  "dimensions": 384,
+  "database": "PostgreSQL + pgvector",
+  "strategies": {
+    "A_fixed": {
+      "chunks": 126,
+      "pages": 38
+    },
+    "B_paragraph": {
+      "chunks": 114,
+      "pages": 38
+    },
+    "C_paragraph_metadata": {
+      "chunks": 114,
+      "pages": 38
+    }
+  }
+}

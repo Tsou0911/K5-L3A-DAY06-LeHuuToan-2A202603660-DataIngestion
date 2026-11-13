@@ -1,0 +1,13 @@
+{
+  "A_fixed/test": {
+    "n": 5,
+    "hit_at_1": {
+      "hits": 2,
+      "total": 5
+    },
+    "evidence_hit_at_3": {
+      "hits": 2,
+      "total": 5
+    }
+  }
+}

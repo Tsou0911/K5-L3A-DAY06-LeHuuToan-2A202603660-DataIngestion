@@ -1,65 +1,61 @@
-# Starter · PostgreSQL + pgvector
+# Starter · PostgreSQL + pgvector via Docker
 
-Bộ khởi động **tùy chọn** cho lab cá nhân. Docker Compose tạo PostgreSQL + pgvector local; các file trong `src/` là **khung pseudocode có TODO**, chưa đọc tài liệu, tạo embedding, lưu vector hay chạy benchmark. Bạn cần tự hiện thực. Vẫn có thể chọn Qdrant, Chroma hoặc vector store tương đương theo [GUIDE.md](../GUIDE.md).
+Starter dùng **PostgreSQL + pgvector trong Docker** để lưu vector. Embedding chạy local bằng model đa ngữ; lần tải model đầu cần Internet và có thể mất thời gian.
 
-## Cấu trúc
+## Cài đặt trên Windows PowerShell
 
-```text
-starter/
-├── docker-compose.yml     # PostgreSQL 16 + pgvector, chỉ mở cổng local
-├── init.sql               # bật extension khi tạo database mới
-├── requirements.txt       # psycopg, pypdf và python-dotenv
-├── .env.example           # cấu hình mẫu; copy thành .env
-├── scripts/check_setup.py # kiểm tra kết nối và extension (đã chạy được)
-├── src/
-│   ├── models.py          # cấu trúc dữ liệu mẫu
-│   ├── ingestion.py       # TODO: đọc / chuẩn hóa tài liệu
-│   ├── chunking.py        # TODO: chia chunk
-│   ├── embeddings.py      # TODO: chọn model API hoặc local
-│   ├── store.py           # TODO: lưu vector, metadata và filter
-│   ├── evaluation.py      # TODO: chấm truy xuất, lưu trace
-│   └── run.py             # TODO: kết nối các bước thành pipeline
-├── data/                  # bạn tự chuẩn bị corpus được phép sử dụng
-└── results/               # lưu kết quả của bạn
-```
+Mở Docker Desktop, chờ trạng thái Engine chạy, sau đó mở PowerShell tại thư mục `starter/`:
 
-## 1. Cài và kiểm tra database
-
-Cần Docker Desktop hoặc Docker Engine + Compose, Python **3.11–3.14**, và mạng để tải image/dependencies lần đầu. Các lệnh sau chạy từ thư mục `starter/`:
-
-```bash
-cd starter
-python3 -m venv .venv
-```
-
-Kích hoạt `.venv`: macOS/Linux dùng `source .venv/bin/activate`; Windows PowerShell dùng `.venv\Scripts\Activate.ps1`. Sau đó:
-
-```bash
+```powershell
+python --version
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-# macOS/Linux: cp .env.example .env
-# Windows PowerShell: Copy-Item .env.example .env
-docker compose -p day6_student_starter up -d --wait
+Copy-Item .env.example .env
+docker compose up -d --wait
 python scripts/check_setup.py
 ```
 
-Kỳ vọng: hiện tên database, phiên bản PostgreSQL và pgvector, sau đó `Setup OK`. Đây **chỉ là kiểm tra hạ tầng**, không phải kết quả benchmark. Docker dùng cổng `127.0.0.1:55433` và mật khẩu cố định **chỉ dùng local cho lab**; nếu cổng bận, sửa đồng thời port trong `docker-compose.yml` và `DATABASE_URL` trong `.env`. `init.sql` chỉ chạy khi volume mới được tạo; nếu database sẵn có chưa bật extension, xem log Docker và kiểm tra cấu hình thay vì xóa volume chứa dữ liệu.
+Python 3.11–3.14 được chấp nhận. Nếu PowerShell chặn kích hoạt môi trường, chỉ áp dụng trong cửa sổ hiện tại rồi thử lại:
 
-Dừng container nhưng giữ dữ liệu:
-
-```bash
-docker compose -p day6_student_starter stop
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
 ```
 
-## 2. Chọn embedding model
+`Setup OK` xác nhận Python kết nối được PostgreSQL trong Docker và extension pgvector đã bật. Docker giữ dữ liệu trong named volume `pg_data` khi container dừng. Không commit `.env` hoặc `.venv/`.
 
-Điền key tương ứng trong `.env` nếu dùng OpenRouter, OpenAI hoặc Gemini; **không commit `.env`**. Model local không cần API key. `requirements.txt` chỉ có dependencies cơ bản: tự cài SDK hoặc thư viện local phù hợp với model bạn chọn và ghi lại version/lệnh cài trong báo cáo. Ghi tên model và số chiều; dùng cùng model cho toàn bộ chiến lược và vector query tương thích vector document.
+## Embedding model
 
-## 3. Hoàn thiện pipeline
+Mặc định là `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`, model đa ngữ phù hợp truy vấn tiếng Việt. Lần chạy đầu tải model từ Hugging Face; model chạy trên máy, không cần API key. Ghi tên model, phiên bản thư viện và số chiều thực tế vào báo cáo. Dùng cùng model cho A/B/C.
 
-1. Đặt corpus vào `data/` hoặc cung cấp manifest/hướng dẫn truy cập. Đọc [GUIDE.md](../GUIDE.md) về **30 trang nội dung**, quyền dữ liệu và metadata.
-2. Hoàn thiện từng hàm TODO trong `src/`. Lưu ID tài liệu, nguồn, trang/vị trí và ít nhất một trường filter có ích.
-3. Xây ít nhất ba cấu hình; ví dụ A fixed-size, B theo đoạn, C như B nhưng có filter. Cần cùng corpus, model và benchmark; nạp lại không nhân đôi và xử lý chunk cũ khi dữ liệu đổi.
-4. Tự viết ít nhất 20 câu hỏi kèm evidence, tách dev/test trước khi thử theo [BENCHMARK.md](../BENCHMARK.md). Lưu trace top-3 và báo cáo đủ năm tiêu chí.
-5. Sau khi hoàn thiện, chạy `python -m src.run` từ thư mục `starter/`. Trước khi làm TODO, lệnh này **chủ động báo `NotImplementedError`**.
+## Pipeline
 
-Lưu code, cấu hình, kết quả và lệnh chạy để người chấm tái lập; không commit key, dữ liệu mật hoặc dữ liệu không có quyền chia sẻ.
+Chuẩn bị PDF mặc định trong `data/` thành các trang và cấu hình chunk A/B/C bằng lệnh:
+
+```powershell
+python scripts/prepare_corpus.py
+```
+
+Kết quả JSONL được ghi vào `results/prepared/`: `pages.jsonl` giữ văn bản đã chuẩn hóa cùng số trang PDF vật lý; ba file `chunks_*.jsonl` giữ `document_id`, nguồn và trang cho mỗi chunk. Có thể đổi PDF, ID nguồn, thư mục đầu ra, kích thước và overlap bằng các tham số `--pdf`, `--document-id`, `--source`, `--output`, `--size` và `--overlap`. Kích thước tính bằng ký tự, không phải token.
+
+`A_fixed` dùng cửa sổ cố định có overlap; `B_paragraph` đóng gói theo đoạn văn; `C_paragraph_metadata` dùng cùng chunk như B để áp dụng filter khi truy vấn. Script không tự đoán metadata section từ bố cục PDF; cần gắn nhãn section đã kiểm chứng trước khi dùng các filter `section` trong benchmark. Các module `src/` cũng có embedding local, lưu bền vững, filter metadata và tính metric retrieval. Xem [GUIDE.md](../GUIDE.md), [BENCHMARK.md](../BENCHMARK.md) và [SUBMISSION.md](../SUBMISSION.md).
+
+Sau khi chuẩn bị chunk, tạo embedding và lưu cả ba cấu hình vào PostgreSQL:
+
+```powershell
+python -m src.run
+```
+
+Lần đầu chạy sẽ tải embedding model. Thông tin model, số chiều và số chunk được ghi vào `results/ingestion_summary.json`. Lệnh này chưa chấm benchmark; cần gắn metadata section đã kiểm chứng trước khi đánh giá các câu hỏi có filter.
+
+Chạy truy xuất trên tập dev để xem top-3 và chọn cấu hình:
+
+```powershell
+python scripts/evaluate_benchmark.py --split dev
+```
+
+Trace và chỉ số Hit@1/Evidence Hit@3 được ghi vào `results/benchmark_dev_traces.jsonl` và `results/benchmark_dev_summary.json`. Chỉ sau khi chốt cấu hình theo dev mới chạy test, đồng thời chỉ định cấu hình đã chọn, ví dụ `python scripts/evaluate_benchmark.py --split test --strategy B_paragraph`; script không cho so sánh các cấu hình trên tập test.
+
+pgvector dùng cosine distance. Các chiến lược được phân biệt bằng trường `strategy`; truy vấn C có thể truyền filter metadata. Khi nạp lại, chunk cũ của cùng tài liệu và chiến lược được thay thế.

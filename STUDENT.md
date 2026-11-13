@@ -5,4 +5,4 @@
 - Lớp: L3A
 - Chủ đề và corpus: Lịch sử Việt Nam; bài Wikipedia tiếng Việt được xuất thành PDF (xem `data/manifest.json`).
 - Repo bài nộp: https://github.com/Tsou0911/K5-L3A-DAY06-LeHuuToan-2A202603660-DataIngestion
-- Commit chốt bài: Chưa có; cần tạo commit trong repo bài nộp sau khi hoàn tất.
+- Commit chốt bài: final
